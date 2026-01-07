@@ -15,6 +15,18 @@ body {
   color: white;
 }
 
+#loading {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
+#app {
+  display: none;
+}
+
 header {
   background: #111;
   padding: 15px 20px;
@@ -36,12 +48,6 @@ button {
 main {
   padding: 30px;
 }
-
-#loading {
-  padding: 50px;
-  text-align: center;
-  font-size: 18px;
-}
 </style>
 </head>
 
@@ -49,7 +55,7 @@ main {
 
 <div id="loading">Loading...</div>
 
-<div id="app" style="display:none">
+<div id="app">
   <header>
     <div>MyApp Dashboard</div>
     <button onclick="logout()">Logout</button>
@@ -67,33 +73,36 @@ const supabaseClient = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
 );
 
-let initialized = false;
+/* 🔐 INIT AUTH (สูตรที่ถูกต้อง) */
+async function initAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
 
-/* ✅ AUTH STATE LISTENER (สำคัญที่สุด) */
+  if (!session) {
+    // ยังไม่ login → กลับหน้า index
+    window.location.replace("index.html");
+    return;
+  }
+
+  // login แล้วจริง
+  document.getElementById("email").innerText =
+    "Logged in as: " + session.user.email;
+
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+initAuth();
+
+/* 🔁 ฟัง auth change (logout / token refresh) */
 supabaseClient.auth.onAuthStateChange((event, session) => {
-
-  // รอ event แรกเท่านั้น
-  if (!initialized) {
-    initialized = true;
-
-    if (!session) {
-      window.location.href = "index.html";
-      return;
-    }
-
-    // login แล้วจริง
-    document.getElementById("email").innerText =
-      "Logged in as: " + session.user.email;
-
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("app").style.display = "block";
+  if (event === "SIGNED_OUT") {
+    window.location.replace("index.html");
   }
 });
 
 /* 🚪 LOGOUT */
 async function logout() {
   await supabaseClient.auth.signOut();
-  window.location.href = "index.html";
 }
 </script>
 
