@@ -36,39 +36,59 @@ button {
 main {
   padding: 30px;
 }
+
+#loading {
+  padding: 50px;
+  text-align: center;
+  font-size: 18px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <div>MyApp Dashboard</div>
-  <button onclick="logout()">Logout</button>
-</header>
+<div id="loading">Loading...</div>
 
-<main>
-  <h2>Welcome 👋</h2>
-  <p id="email"></p>
-</main>
+<div id="app" style="display:none">
+  <header>
+    <div>MyApp Dashboard</div>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <h2>Welcome 👋</h2>
+    <p id="email"></p>
+  </main>
+</div>
 
 <script>
 const supabaseClient = supabase.createClient(
-  'https://YOUR_PROJECT_ID.supabase.co',
-  'YOUR_ANON_PUBLIC_KEY'
+  'https://ylwfiaffdbtvammsqfcp.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
 );
 
-/* 🔐 AUTH GUARD: ห้ามเข้า ถ้าไม่ได้ login */
-(async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+let initialized = false;
 
-  if (!session) {
-    window.location.href = "index.html";
-    return;
+/* ✅ AUTH STATE LISTENER (สำคัญที่สุด) */
+supabaseClient.auth.onAuthStateChange((event, session) => {
+
+  // รอ event แรกเท่านั้น
+  if (!initialized) {
+    initialized = true;
+
+    if (!session) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    // login แล้วจริง
+    document.getElementById("email").innerText =
+      "Logged in as: " + session.user.email;
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("app").style.display = "block";
   }
-
-  document.getElementById("email").innerText =
-    "Logged in as: " + session.user.email;
-})();
+});
 
 /* 🚪 LOGOUT */
 async function logout() {
