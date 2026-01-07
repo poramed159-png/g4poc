@@ -1,48 +1,80 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f2027;
+  color: white;
+}
+
+header {
+  background: #111;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #ff5252;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+main {
+  padding: 30px;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Dashboard</h2>
-<p id="status">Checking login...</p>
-<button onclick="logout()">Logout</button>
+<header>
+  <div>MyApp Dashboard</div>
+  <button onclick="logout()">Logout</button>
+</header>
+
+<main>
+  <h2>Welcome 👋</h2>
+  <p id="email"></p>
+</main>
 
 <script>
-  // 1️⃣ สร้าง Supabase client
-  const supabase = supabase.createClient(
-    'https://ylwfiaffdbtvammsqfcp.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
-  );
+const supabaseClient = supabase.createClient(
+  'https://YOUR_PROJECT_ID.supabase.co',
+  'YOUR_ANON_PUBLIC_KEY'
+);
 
-  // 2️⃣ ตรวจสอบว่ามี user login อยู่ไหม
-  async function checkLogin() {
-    const { data, error } = await supabase.auth.getUser();
+/* 🔐 AUTH GUARD: ห้ามเข้า ถ้าไม่ได้ login */
+(async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
 
-    // ❌ ยังไม่ login
-    if (!data.user) {
-      window.location.href = "index.html";
-      return;
-    }
-
-    // ✅ login แล้ว
-    document.getElementById("status").innerText =
-      "Login as: " + data.user.email;
-  }
-
-  // 3️⃣ Logout
-  async function logout() {
-    await supabase.auth.signOut();
+  if (!session) {
     window.location.href = "index.html";
+    return;
   }
 
-  // 4️⃣ เรียกตรวจสอบทันทีเมื่อเปิดหน้า
-  checkLogin();
+  document.getElementById("email").innerText =
+    "Logged in as: " + session.user.email;
+})();
+
+/* 🚪 LOGOUT */
+async function logout() {
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
+}
 </script>
 
 </body>
