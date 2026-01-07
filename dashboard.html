@@ -103,6 +103,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 /* 🚪 LOGOUT */
 async function logout() {
   await supabaseClient.auth.signOut();
+  window.location.replace("index.html");
 }
 </script>
 
