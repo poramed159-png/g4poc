@@ -1,38 +1,202 @@
-<input id="email" placeholder="Email">
-<input id="password" type="password">
-<button onclick="login()">Login</button>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>My App | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+
+    .card {
+      width: 360px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      padding: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.6rem;
+      cursor: pointer;
+      border-bottom: 2px solid #ddd;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      border-bottom: 2px solid #0070f3;
+      color: #0070f3;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 0.5rem 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.8rem;
+      border: none;
+      border-radius: 6px;
+      background: #0070f3;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0059c1;
+    }
+
+    .msg {
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <h2>My App</h2>
+
+  <div class="tabs">
+    <div class="tab active" id="loginTab" onclick="showLogin()">Login</div>
+    <div class="tab" id="registerTab" onclick="showRegister()">Register</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerBox" class="hidden">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="password" id="regPassword" placeholder="Password">
+    <button onclick="register()">Create account</button>
+  </div>
+
+  <div class="msg" id="message"></div>
+
+  <div class="footer">
+    Powered by Supabase
+  </div>
+
+</div>
 
 <script>
-const supabase = supabase.createClient(
-  'https://ylwfiaffdbtvammsqfcp.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
-);
+  // 🔑 ใส่ค่าของคุณตรงนี้
+  const supabase = supabase.createClient(
+    'https://ylwfiaffdbtvammsqfcp.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
+  );
 
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    alert(error.message);
-  } else {
-    window.location.href = "dashboard.html";
+  function showLogin() {
+    document.getElementById("loginBox").classList.remove("hidden");
+    document.getElementById("registerBox").classList.add("hidden");
+    document.getElementById("loginTab").classList.add("active");
+    document.getElementById("registerTab").classList.remove("active");
+    setMsg("");
   }
-}
+
+  function showRegister() {
+    document.getElementById("registerBox").classList.remove("hidden");
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("registerTab").classList.add("active");
+    document.getElementById("loginTab").classList.remove("active");
+    setMsg("");
+  }
+
+  function setMsg(text, isError = false) {
+    const el = document.getElementById("message");
+    el.innerText = text;
+    el.style.color = isError ? "red" : "green";
+  }
+
+  async function login() {
+    const email = loginEmail.value;
+    const password = loginPassword.value;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      setMsg(error.message, true);
+    } else {
+      window.location.href = "dashboard.html";
+    }
+  }
+
+  async function register() {
+    const email = regEmail.value;
+    const password = regPassword.value;
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      setMsg(error.message, true);
+    } else {
+      setMsg("สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน login");
+      showLogin();
+    }
+  }
 </script>
 
-
-<input id="email" placeholder="Email">
-<input id="password" type="password">
-
-<button onclick="login()">Login</button>
-
-<p style="margin-top:10px;">
-  ยังไม่มีบัญชี?
-  <a href="register.html">สมัครสมาชิก</a>
-</p>
-
+</body>
+</html>
