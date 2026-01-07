@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<h2>Dashboard</h2>
+<p id="status">Checking login...</p>
+<button onclick="logout()">Logout</button>
+
+<script>
+  // 1️⃣ สร้าง Supabase client
+  const supabase = supabase.createClient(
+    'https://ylwfiaffdbtvammsqfcp.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
+  );
+
+  // 2️⃣ ตรวจสอบว่ามี user login อยู่ไหม
+  async function checkLogin() {
+    const { data, error } = await supabase.auth.getUser();
+
+    // ❌ ยังไม่ login
+    if (!data.user) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    // ✅ login แล้ว
+    document.getElementById("status").innerText =
+      "Login as: " + data.user.email;
+  }
+
+  // 3️⃣ Logout
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = "index.html";
+  }
+
+  // 4️⃣ เรียกตรวจสอบทันทีเมื่อเปิดหน้า
+  checkLogin();
+</script>
+
+</body>
+</html>
