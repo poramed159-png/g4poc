@@ -1,26 +1,84 @@
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+    }
+    .box {
+      width: 320px;
+      margin: 100px auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin: 0.5rem 0;
+    }
+    button {
+      width: 100%;
+      padding: 0.6rem;
+      background: #0070f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    a {
+      color: #0070f3;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Register</h2>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="register()">Sign up</button>
+
+  <p>มีบัญชีแล้ว? <a href="index.html">Login</a></p>
+</div>
 
 <script>
-const supabase = supabase.createClient(
-  'https://ylwfiaffdbtvammsqfcp.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
-);
+  // 🔑 ใส่ค่าของคุณ
+  const supabase = supabase.createClient(
+    'https://ylwfiaffdbtvammsqfcp.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
+  );
 
-async function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  async function register() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password
-  });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
+    });
 
-  if (error) {
-    alert(error.message);
-  } else {
-    alert("สมัครสำเร็จ ตรวจสอบอีเมล");
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน login");
+      window.location.href = "index.html";
+    }
   }
-}
 </script>
+
+</body>
+</html>
