@@ -171,7 +171,7 @@ async function submitForm() {
     });
 
     if (error) msg.innerText = error.message;
-    else location.href = "dashboard.html";
+    else location.href = "Welcome.html";
 
   } else {
     const { error } = await supabaseClient.auth.signUp({
@@ -190,4 +190,5 @@ async function submitForm() {
 
 </body>
 </html>
+
 
