@@ -15,56 +15,105 @@ body {
   color: white;
 }
 
-#loading {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-}
-
-#app {
-  display: none;
-}
-
 header {
   background: #111;
-  padding: 15px 20px;
+  padding: 15px 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 button {
-  padding: 8px 14px;
+  padding: 6px 12px;
   border: none;
   border-radius: 6px;
-  background: #ff5252;
-  color: white;
-  font-weight: bold;
   cursor: pointer;
+  font-weight: bold;
 }
 
-main {
-  padding: 30px;
+.logout {
+  background: #ff5252;
+  color: white;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.card {
+  width: 600px;
+  background: rgba(255,255,255,0.08);
+  padding: 25px;
+  border-radius: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: none;
+}
+
+.add-btn {
+  width: 100%;
+  background: #00e5ff;
+  margin-top: 10px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #555;
+  text-align: left;
+}
+
+.edit {
+  background: #ffc107;
+}
+
+.delete {
+  background: #f44336;
+  color: white;
 }
 </style>
 </head>
 
 <body>
 
-<div id="loading">Loading...</div>
+<header>
+  <div>📦 Product Dashboard</div>
+  <button class="logout" onclick="logout()">Logout</button>
+</header>
 
-<div id="app">
-  <header>
-    <div>MyApp Dashboard</div>
-    <button onclick="logout()">Logout</button>
-  </header>
+<div class="container">
+  <div class="card">
 
-  <main>
-    <h2>Welcome 👋</h2>
-    <p id="email"></p>
-  </main>
+    <h3>Add / Update Product</h3>
+    <input id="name" placeholder="Product name">
+    <input id="price" type="number" placeholder="Price">
+
+    <button class="add-btn" onclick="saveProduct()">Save</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+          <th width="140">Action</th>
+        </tr>
+      </thead>
+      <tbody id="productList"></tbody>
+    </table>
+
+  </div>
 </div>
 
 <script>
@@ -73,37 +122,83 @@ const supabaseClient = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlsd2ZpYWZmZGJ0dmFtbXNxZmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NzIzMDUsImV4cCI6MjA4MzM0ODMwNX0.m3h7Smp6CiPX2fEzthZD3_0LhDzsm_kQp2Jbqzm8_r8'
 );
 
-/* 🔐 INIT AUTH (สูตรที่ถูกต้อง) */
-async function initAuth() {
+let editId = null;
+
+/* AUTH GUARD */
+(async () => {
   const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) location.href = "index.html";
+  loadProducts();
+})();
 
-  if (!session) {
-    // ยังไม่ login → กลับหน้า index
-    window.location.replace("index.html");
-    return;
-  }
+/* LOAD */
+async function loadProducts() {
+  const { data } = await supabaseClient
+    .from('products')
+    .select()
+    .order('created_at', { ascending: false });
 
-  // login แล้วจริง
-  document.getElementById("email").innerText =
-    "Logged in as: " + session.user.email;
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  productList.innerHTML = "";
+  data.forEach(p => {
+    productList.innerHTML += `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.price}</td>
+        <td>
+          <button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.price})">✏️</button>
+          <button class="delete" onclick="deleteProduct('${p.id}')">🗑️</button>
+        </td>
+      </tr>`;
+  });
 }
 
-initAuth();
+/* SAVE (ADD / UPDATE) */
+async function saveProduct() {
+  const nameVal = name.value;
+  const priceVal = price.value;
 
-/* 🔁 ฟัง auth change (logout / token refresh) */
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (event === "SIGNED_OUT") {
-    window.location.replace("index.html");
+  if (!nameVal || !priceVal) return;
+
+  if (editId) {
+    await supabaseClient
+      .from('products')
+      .update({ name: nameVal, price: priceVal })
+      .eq('id', editId);
+  } else {
+    await supabaseClient
+      .from('products')
+      .insert([{ name: nameVal, price: priceVal }]);
   }
-});
 
-/* 🚪 LOGOUT */
+  editId = null;
+  name.value = "";
+  price.value = "";
+  loadProducts();
+}
+
+/* EDIT */
+function editProduct(id, nameVal, priceVal) {
+  editId = id;
+  name.value = nameVal;
+  price.value = priceVal;
+}
+
+/* DELETE */
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+
+  await supabaseClient
+    .from('products')
+    .delete()
+    .eq('id', id);
+
+  loadProducts();
+}
+
+/* LOGOUT */
 async function logout() {
   await supabaseClient.auth.signOut();
-  window.location.replace("index.html");
+  location.href = "index.html";
 }
 </script>
 
