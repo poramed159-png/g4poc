@@ -157,6 +157,8 @@ async function loadProducts() {
 
 /* SAVE (ADD / UPDATE) */
 async function saveProduct() {
+  console.log("SAVE MODE editId =", editId);
+
   const nameInput = document.getElementById("productName");
   const priceInput = document.getElementById("productPrice");
 
@@ -170,7 +172,7 @@ async function saveProduct() {
 
   let result;
 
-  if (editId) {
+  if (editId !== null) {
     // 🔄 UPDATE
     result = await supabaseClient
       .from("products")
@@ -196,8 +198,7 @@ async function saveProduct() {
     return;
   }
 
-  // reset state
-  editId = null;
+  editId = null; // 🔥 reset หลัง save
   nameInput.value = "";
   priceInput.value = "";
 
@@ -209,10 +210,12 @@ async function saveProduct() {
 
 /* EDIT */
 function editProduct(id, nameVal, priceVal) {
-  editId = id;
+  editId = id; // 🔥 ตัว global
 
   document.getElementById("productName").value = nameVal;
   document.getElementById("productPrice").value = priceVal;
+
+  console.log("EDIT MODE:", editId);
 }
 
 
