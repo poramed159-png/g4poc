@@ -156,8 +156,11 @@ async function loadProducts() {
 async function saveProduct() {
   console.log("SAVE CLICKED");
 
-  const nameVal = name.value.trim();
-  const priceVal = price.value;
+  const nameInput = document.getElementById("name");
+  const priceInput = document.getElementById("price");
+
+  const nameVal = nameInput.value.trim();
+  const priceVal = priceInput.value;
 
   console.log("FORM DATA:", nameVal, priceVal);
 
@@ -167,11 +170,11 @@ async function saveProduct() {
   }
 
   const { data, error } = await supabaseClient
-    .from('products')
+    .from("products")
     .insert([
-      { 
-        name: nameVal, 
-        price: Number(priceVal) 
+      {
+        name: nameVal,
+        price: Number(priceVal)
       }
     ]);
 
@@ -182,8 +185,9 @@ async function saveProduct() {
     return;
   }
 
-  name.value = "";
-  price.value = "";
+  nameInput.value = "";
+  priceInput.value = "";
+
   loadProducts();
 }
 
