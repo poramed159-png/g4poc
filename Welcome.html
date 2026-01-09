@@ -157,44 +157,47 @@ async function loadProducts() {
 
 /* SAVE (ADD / UPDATE) */
 async function saveProduct() {
-  console.log("SAVE CLICKED");
-
   const nameInput = document.getElementById("productName");
   const priceInput = document.getElementById("productPrice");
 
-  console.log("ELEMENTS:", nameInput, priceInput);
-
-  if (!nameInput || !priceInput) {
-    alert("Input element not found");
-    return;
-  }
-
   const nameVal = nameInput.value.trim();
   const priceVal = priceInput.value;
-
-  console.log("FORM DATA:", nameVal, priceVal);
 
   if (nameVal === "" || priceVal === "") {
     alert("Please fill all fields");
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("products")
-    .insert([
-      {
+  let result;
+
+  if (editId) {
+    // 🔄 UPDATE
+    result = await supabaseClient
+      .from("products")
+      .update({
         name: nameVal,
         price: Number(priceVal)
-      }
-    ]);
+      })
+      .eq("id", editId);
+  } else {
+    // ➕ INSERT
+    result = await supabaseClient
+      .from("products")
+      .insert([
+        {
+          name: nameVal,
+          price: Number(priceVal)
+        }
+      ]);
+  }
 
-  console.log("SUPABASE RESULT:", data, error);
-
-  if (error) {
-    alert(error.message);
+  if (result.error) {
+    alert(result.error.message);
     return;
   }
 
+  // reset state
+  editId = null;
   nameInput.value = "";
   priceInput.value = "";
 
@@ -203,16 +206,15 @@ async function saveProduct() {
 
 
 
+
 /* EDIT */
 function editProduct(id, nameVal, priceVal) {
   editId = id;
 
-  const nameInput = document.getElementById("productName");
-  const priceInput = document.getElementById("productPrice");
-
-  nameInput.value = nameVal;
-  priceInput.value = priceVal;
+  document.getElementById("productName").value = nameVal;
+  document.getElementById("productPrice").value = priceVal;
 }
+
 
 
 /* DELETE */
