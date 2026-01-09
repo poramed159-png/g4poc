@@ -156,19 +156,24 @@ async function loadProducts() {
 async function saveProduct() {
   console.log("SAVE CLICKED");
 
-  const nameVal = name.value;
+  const nameVal = name.value.trim();
   const priceVal = price.value;
 
   console.log("FORM DATA:", nameVal, priceVal);
 
-  if (!nameVal || !priceVal) {
+  if (nameVal === "" || priceVal === "") {
     alert("Please fill all fields");
     return;
   }
 
   const { data, error } = await supabaseClient
     .from('products')
-    .insert([{ name: nameVal, price: priceVal }]);
+    .insert([
+      { 
+        name: nameVal, 
+        price: Number(priceVal) 
+      }
+    ]);
 
   console.log("SUPABASE RESULT:", data, error);
 
@@ -181,6 +186,7 @@ async function saveProduct() {
   price.value = "";
   loadProducts();
 }
+
 
 
 /* EDIT */
