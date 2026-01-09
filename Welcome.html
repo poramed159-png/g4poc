@@ -142,14 +142,16 @@ async function loadProducts() {
   productList.innerHTML = "";
   data.forEach(p => {
     productList.innerHTML += `
-      <tr>
-        <td>${p.name}</td>
-        <td>${p.price}</td>
-        <td>
-          <button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.price})">✏️</button>
-          <button class="delete" onclick="deleteProduct('${p.id}')">🗑️</button>
-        </td>
-      </tr>`;
+<tr>
+  <td>${p.name}</td>
+  <td>${p.price}</td>
+  <td>
+    <button class="edit" onclick="editProduct('${p.id}', '${p.name}', ${p.price})">✏️</button>
+    <button class="delete" onclick="deleteProduct('${p.id}')">🗑️</button>
+  </td>
+</tr>
+`;
+
   });
 }
 
