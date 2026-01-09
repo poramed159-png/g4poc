@@ -97,8 +97,9 @@ th, td {
   <div class="card">
 
     <h3>Add / Update Product</h3>
-    <input id="name" placeholder="Product name">
-    <input id="price" type="number" placeholder="Price">
+    <input id="productName" placeholder="Product name">
+    <input id="productPrice" type="number" placeholder="Price">
+
 
     <button class="add-btn" onclick="saveProduct()">Save</button>
 
@@ -156,8 +157,15 @@ async function loadProducts() {
 async function saveProduct() {
   console.log("SAVE CLICKED");
 
-  const nameInput = document.getElementById("name");
-  const priceInput = document.getElementById("price");
+  const nameInput = document.getElementById("productName");
+  const priceInput = document.getElementById("productPrice");
+
+  console.log("ELEMENTS:", nameInput, priceInput);
+
+  if (!nameInput || !priceInput) {
+    alert("Input element not found");
+    return;
+  }
 
   const nameVal = nameInput.value.trim();
   const priceVal = priceInput.value;
