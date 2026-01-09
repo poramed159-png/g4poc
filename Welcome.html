@@ -204,9 +204,14 @@ async function saveProduct() {
 /* EDIT */
 function editProduct(id, nameVal, priceVal) {
   editId = id;
-  name.value = nameVal;
-  price.value = priceVal;
+
+  const nameInput = document.getElementById("productName");
+  const priceInput = document.getElementById("productPrice");
+
+  nameInput.value = nameVal;
+  priceInput.value = priceVal;
 }
+
 
 /* DELETE */
 async function deleteProduct(id) {
