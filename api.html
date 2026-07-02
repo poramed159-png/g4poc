@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security Lab Demo</title>
+<style>
+body{font-family:Arial;background:#1e293b;color:#fff;margin:0}
+header{background:#0f172a;padding:16px}
+section{padding:20px}
+pre{background:#111827;padding:12px;border-radius:8px;overflow:auto}
+.card{background:#334155;padding:16px;border-radius:8px;margin:12px 0}
+button{padding:8px 14px}
+</style>
+</head>
+<body>
+<header><h1>Security Lab Demo (Mock API)</h1></header>
+<section>
+<div class="card">
+<h2>Login</h2>
+<input id="u" placeholder="user@example.local">
+<input id="p" type="password" placeholder="password">
+<button onclick="login()">Login</button>
+<p id="status"></p>
+</div>
+
+<div class="card">
+<h2>Mock API Explorer</h2>
+<select id="api">
+<option>/api/me</option>
+<option>/api/users/1001</option>
+<option>/api/orders</option>
+<option>/api/admin/system</option>
+<option>/api/payment/cards</option>
+</select>
+<button onclick="callApi()">Call API</button>
+<pre id="out"></pre>
+</div>
+</section>
+
+<script>
+const mock={
+"/api/me":{
+ userId:1001,
+ username:"jdoe",
+ fullName:"John Doe",
+ email:"john.doe@example.local",
+ phone:"+66-81-234-5678",
+ employeeId:"EMP10001",
+ department:"Security",
+ role:"User"
+},
+"/api/users/1001":{
+ id:1001,
+ firstName:"John",
+ lastName:"Doe",
+ email:"john.doe@example.local",
+ phone:"+1-202-555-0147",
+ dateOfBirth:"1988-04-15",
+ nationalId:"123-45-6789",
+ passport:"P12345678",
+ address:{
+   houseNo:"99",
+   street:"Example Street",
+   city:"Bangkok",
+   postalCode:"10110"
+ }
+},
+"/api/orders":[
+ {orderId:"ORD-1001",amount:2500,status:"PAID"},
+ {orderId:"ORD-1002",amount:1200,status:"PENDING"}
+],
+"/api/admin/system":{
+ hostname:"lab-app-01",
+ version:"1.0.0-demo",
+ uptime:"14 days",
+ environment:"LAB"
+},
+"/api/payment/cards":[
+ {holder:"John Doe",cardNumberMasked:"411111******1111",expiry:"12/30"}
+]
+};
+
+function login(){
+ localStorage.setItem("demo_token","fake-jwt-token");
+ document.getElementById("status").innerText="Logged in (Demo)";
+}
+function callApi(){
+ const ep=document.getElementById("api").value;
+ document.getElementById("out").textContent=JSON.stringify(mock[ep],null,2);
+}
+</script>
+</body>
+</html>
